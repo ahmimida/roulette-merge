@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Roulette "Qui fait le merge ?"</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 40px;
+    }
+
+    #roulette-container {
+      border: 2px solid #ccc;
+      display: inline-block;
+      padding: 20px;
+      border-radius: 10px;
+    }
+
+    h2 {
+      margin-bottom: 10px;
+    }
+
+    label, select {
+      display: inline-block;
+      margin-top: 10px;
+    }
+
+    select {
+      padding: 5px;
+      font-size: 1em;
+      margin-left: 10px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 1em;
+      cursor: pointer;
+      border-radius: 5px;
+      background-color: #007BFF;
+      color: #fff;
+      border: none;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    #result {
+      margin-top: 20px;
+      font-size: 2em;
+      font-weight: bold;
+      transition: transform 0.2s ease-in-out;
+      min-height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .big {
+      font-size: 2.5em;
+      color: #d9534f;
+    }
+  </style>
+</head>
+<body>
+
+<div id="roulette-container">
+  <h2>Roulette "Qui fait le merge ?"</h2>
+
+  <p>Sélectionnez le développeur qui a fait le merge la semaine dernière :</p>
+  <!-- Menu déroulant pour choisir le dev de la semaine dernière -->
+  <select id="lastWeekSelect">
+    <option value="">--Aucun--</option>
+    <option value="mehdi">mehdi</option>
+    <option value="yannick">yannick</option>
+    <option value="vitor">vitor</option>
+    <option value="samir">samir</option>
+    <option value="ludwig">ludwig</option>
+    <option value="jean claude">jean claude</option>
+  </select>
+
+  <p>Cliquez sur le bouton pour lancer la roulette :</p>
+  <!-- Bouton "GO" -->
+  <button onclick="startSpin()">GO</button>
+  
+  <div id="result"></div>
+</div>
+
+<script>
+  const developpeurs = [
+    "mehdi",
+    "yannick",
+    "vitor",
+    "samir",
+    "ludwig",
+    "jean claude"
+  ];
+
+  let intervalId = null;    
+  let isSpinning = false;   
+
+  function startSpin() {
+    if (isSpinning) return; // Empêche de relancer la roulette si elle tourne déjà
+    isSpinning = true;
+
+    const resultElement = document.getElementById("result");
+    const lastWeekSelect = document.getElementById("lastWeekSelect");
+
+    // Récupère la valeur sélectionnée (le dev de la semaine dernière)
+    const mergeLastWeekName = lastWeekSelect.value.trim().toLowerCase();
+
+    // Filtre la liste : on exclut le dev choisi s’il existe
+    // (si mergeLastWeekName est vide, cela n’exclut personne)
+    const candidats = developpeurs.filter(dev => dev.toLowerCase() !== mergeLastWeekName);
+
+    // Si la liste est vide, on arrête la roulette
+    if (candidats.length === 0) {
+      alert("Aucun développeur sélectionnable ! Vérifiez votre sélection.");
+      isSpinning = false;
+      return;
+    }
+
+    resultElement.textContent = "";
+    resultElement.classList.remove("big"); // Réinitialise la classe CSS
+
+    // Défilement des noms toutes les 100 ms
+    intervalId = setInterval(() => {
+      // Choisit un nom aléatoirement parmi les candidats
+      const randomIndex = Math.floor(Math.random() * candidats.length);
+      const devAleatoire = candidats[randomIndex];
+
+      resultElement.textContent = devAleatoire;
+      // Petit effet de zoom
+      resultElement.style.transform = "scale(1.2)";
+      setTimeout(() => {
+        resultElement.style.transform = "scale(1)";
+      }, 100);
+
+    }, 100);
+
+    // Au bout de 3 secondes, on arrête le défilement et on choisit le vainqueur
+    setTimeout(() => stopSpin(candidats), 3000);
+  }
+
+  function stopSpin(candidats) {
+    clearInterval(intervalId);
+
+    const resultElement = document.getElementById("result");
+    // Choix final aléatoire
+    const randomIndex = Math.floor(Math.random() * candidats.length);
+    const devFinal = candidats[randomIndex];
+
+    // Affiche en grand
+    resultElement.textContent = devFinal + " !";
+    resultElement.classList.add("big");
+
+    // Ajoute un message final
+    setTimeout(() => {
+      resultElement.textContent = devFinal + " : C'est à toi de faire le merge cette semaine !";
+    }, 800);
+
+    isSpinning = false;
+  }
+</script>
+
+</body>
+</html>
